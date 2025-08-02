@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>互動地圖目標回顧</title>
+  <style>
+    body { font-family: "Segoe UI", "微軟正黑體", Arial, sans-serif; background: #f2f6fa;}
+    h2 { text-align: center; color: #34495e; margin-top: 24px;}
+    #map-area {
+      position: relative;
+      width: 842px;
+      height: 768px;
+      background: url('map.png') no-repeat center/cover;
+      border: 2px solid #3498db;
+      margin: 32px auto;
+      box-shadow: 0 4px 32px #3332;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .point {
+      position: absolute;
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #3498db 60%, #6dd5fa 100%);
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 0 10px #3498db88;
+      transition: transform 0.2s, box-shadow 0.2s;
+      z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: #fff;
+      font-size: 14px;
+    }
+    .point:hover {
+      transform: scale(1.25);
+      box-shadow: 0 0 20px #2980b9cc;
+    }
+    .tooltip {
+      position: absolute;
+      background: linear-gradient(135deg, #fff 80%, #eaf6fa 100%);
+      border: 1px solid #3498db;
+      box-shadow: 0 2px 12px #2980b933;
+      padding: 10px 14px;
+      border-radius: 10px;
+      display: none;
+      pointer-events: none;
+      z-index: 100;
+      font-size: 15px;
+      min-width: 140px;
+      color: #34495e;
+      font-family: inherit;
+      animation: fadeIn 0.2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0;}
+      to { opacity: 1;}
+    }
+    .modal {
+      position: fixed;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(44,62,80,0.3);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 28px 32px 24px 32px;
+      border-radius: 16px;
+      min-width: 320px;
+      max-width: 440px;
+      box-shadow: 0 6px 32px #2980b9aa;
+      position: relative;
+      color: #34495e;
+      font-size: 16px;
+      animation: fadeIn 0.2s;
+    }
+    .close-btn {
+      position: absolute;
+      right: 18px; top: 14px;
+      cursor: pointer;
+      font-size: 28px;
+      color: #888;
+      font-weight: bold;
+      transition: color 0.15s;
+    }
+    .close-btn:hover { color: #e74c3c;}
+    @media (max-width: 900px) {
+      #map-area { width: 98vw; height: 70vw; max-width: 842px; max-height: 768px;}
+    }
+  </style>
+</head>
+<body>
+  <h2>舊金山唐人街</h2>
+  <div id="map-area">
+    <!-- 地標A -->
+    <div class="point" style="left:273px;top:288px;"
+      data-title="Chinese Consolidated Benevolent Association"
+      data-desc="中華總會館"
+      data-detail="中華總會館：<br>華人社區重要組織，推廣文化及福利。">
+      A
+    </div>
+    <!-- 地標B -->
+    <div class="point" style="left:330px;top:511px;"
+      data-title="Chinese Central High School"
+      data-desc="孔子學院"
+      data-detail="孔子學院：<br>為華人子弟提供教育資源。">
+      B
+    </div>
+    <!-- 地標C -->
+    <div class="point" style="left:597px;top:277px;"
+      data-title="中國國民黨（KMT）舊金山支部"
+      data-desc="中國國民黨（KMT）舊金山支部"
+      data-detail="中國國民黨（KMT）舊金山支部：<br>國民黨在美國的老家">
+      C
+    </div>
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="close-modal">&times;</span>
+      <h3 id="modal-title"></h3>
+      <div id="modal-detail"></div>
+    </div>
+  </div>
+  <script>
+    // 互動地標功能
+    const points = document.querySelectorAll('.point');
+    const tooltip = document.getElementById('tooltip');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDetail = document.getElementById('modal-detail');
+    const closeModal = document.getElementById('close-modal');
+
+    points.forEach(point => {
+      point.addEventListener('mouseover', e => {
+        tooltip.innerHTML = `<strong>${point.dataset.title}</strong><br>${point.dataset.desc}`;
+        tooltip.style.display = 'block';
+        // 讓 tooltip 出現在點右上方
+        const rect = point.getBoundingClientRect();
+        const mapRect = point.parentElement.getBoundingClientRect();
+        tooltip.style.left = (rect.left - mapRect.left + 40) + 'px';
+        tooltip.style.top = (rect.top - mapRect.top - 10) + 'px';
+      });
+      point.addEventListener('mouseleave', e => {
+        tooltip.style.display = 'none';
+      });
+      point.addEventListener('click', e => {
+        modalTitle.textContent = point.dataset.title;
+        modalDetail.innerHTML = point.dataset.detail;
+        modal.style.display = 'flex';
+      });
+    });
+    closeModal.onclick = () => modal.style.display = 'none';
+    window.onclick = (e) => {
+      if(e.target == modal) modal.style.display = 'none';
+    };
+  </script>
+  <!-- 地圖底圖：請將你上傳的 map.png（即![image1](image1)）放在同資料夾 -->
+</body>
+</html>
